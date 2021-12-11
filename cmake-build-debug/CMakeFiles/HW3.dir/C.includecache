@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/cygdrive/c/Users/EinBa/CLionProjects/HW3/Utils.h
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+stdbool.h
+-
+
+/cygdrive/c/Users/EinBa/CLionProjects/HW3/main.c
+stdio.h
+-
+Utils.h
+/cygdrive/c/Users/EinBa/CLionProjects/HW3/Utils.h
+
