@@ -1,7 +1,7 @@
-
+// Created by Ein-Bar Surie 316011683  &&  Noam Ickowicz 314766304
 #include "Utils.h"
 
-int length(char* str) {
+int length(const char* str) {
     int i = 0;
     // Loop for counting the indexes
     while (str[i] != '\0') {
@@ -18,7 +18,7 @@ void check_file(FILE* fp, char* path) {
     }
 }
 
-void check_allocate(char* ap) {
+void check_allocate(const char* ap) {
 
     if(!ap) {
         printf("Allocation Failed\n");
@@ -75,7 +75,7 @@ void strip (char* str) {
     }
 }
 
-char* create_path(char* dir, char* file) { // TODO probleme with the indexes
+char* create_path(char* dir, char* file) {
 
     int i = length(dir), j = length(file), x = 0;
     x += i + j + 2; // extend the array for the strings & the '\' char.
@@ -105,18 +105,13 @@ char* get_song_name(char* path) {
     FILE* fp = fopen(path, "r");
     check_file(fp, path);
 
-    // use getline to extract song name from file ( first line ).
+    // Use getline to extract song name from file ( first line ).
     char * buffer = NULL;
     size_t buff_size;
-
     int line_len;
     line_len = getline(&buffer, &buff_size, fp);
-    /*
-     *
-     * assuming line exists (line_len > 0)
-     *
-     */
-    char * song_name = (char*)malloc(line_len+1);
+
+    char * song_name = (char*)malloc(line_len+1); // Allocated memory for the song name
     check_allocate(song_name);
     copy(buffer, song_name);
     strip(song_name); // Cutting the last char - '\n'
@@ -126,7 +121,7 @@ char* get_song_name(char* path) {
     return song_name;
 }
 
-bool wc(char* path, int* nchars, int* nwords, int* nlines) {
+bool wc(const char* path, int* nchars, int* nwords, int* nlines) {
 
     FILE* fp = fopen(path, "r");
     if(!fp) {
@@ -134,75 +129,69 @@ bool wc(char* path, int* nchars, int* nwords, int* nlines) {
         return false;
     }
 
-    int lines = -2, words = 0 , chars = 0, buf_len; // creating int objects for the counting
-    char* buf;
-    size_t buf_size;
+    int lines = -2, words = 0 , chars = 0; // Creating int objects for the counting
+    char buf[LINE_SIZE];
 
-    while( !feof(fp) )   {
-        int i = 0;
+    while(fgets(buf,sizeof(buf),fp) != NULL)   {
+        // Counting the lines for each loop without the two first lines
+        int i = 0; // Creating i variable for the buffer indexes
         lines++;
-        printf("%d \t", lines);
-        if ( lines <= 0 ) {
-            buf_len = getline(&buf, &buf_size, fp);
-            chars += buf_len;
-            printf("%d \t", chars);
-            for( i; i < buf_len; i++) {
-                if(buf[i] == 32) {
-                    words +=1;
-                    printf("%d \t", words);
+
+        if ( lines > 0 ) {
+            while(buf[i] != '\0'){
+                chars++;
+                i++;
+                if(buf[i] == 32) { // Count the words by all the spaces at line ( count it without the last word )
+                    words ++;
                 }
             }
-            nwords++;
         }
     }
+    words += lines; // Adding the last word for each line
 
+    // Setting the pointers to result of the function
     *nwords = words;
     *nlines = lines;
     *nchars = chars;
+
     fclose(fp);
 
     return true;
 }
 
 int get_all_song_names(char* path, char*** all_song_names) {
-
+    // Creat the path file & opened it
     char * filenames = create_path(path, "filenames.txt");
     FILE * songs = fopen(filenames, "r");
     check_file(songs, filenames);
 
-    char * buffer = NULL;
+    // Initialized the temporary variables for each song
+    char *buffer = NULL, *tmp_song_path, *tmp_song_name, *tmp_song_file;
     size_t buff_size;
-    char * tmp_song_path;
-    char * tmp_song_name;
-    char * tmp_song_file;
-    int line_len;
-    int i = 0;
-    line_len = getline(&buffer, &buff_size, songs);
+    int line_len, i = 0;
 
-    while( !feof(songs) )   {
+    line_len = (int)getline(&buffer, &buff_size, songs); // Get the first line
 
-        tmp_song_file = (char*)malloc(line_len+1);
+    while( !feof(songs) )   { // Loop until we get EOF
 
-        if( !tmp_song_file )    {
-            fprintf(stderr, "ERROR: couldnt allocate memory.");
-            exit(-1);
-        }
+        tmp_song_file = (char*)malloc(line_len+1); // Allocated memory for the file name
+        check_allocate(tmp_song_file);
 
-        copy(buffer, tmp_song_file);
+        copy(buffer, tmp_song_file); // Preparing the path song
         strip(tmp_song_file);
         tmp_song_path = create_path(path, tmp_song_file);
         tmp_song_name = get_song_name(tmp_song_path);
 
-        (*all_song_names)[i++] = get_song_name(tmp_song_path);
+        (*all_song_names)[i++] = get_song_name(tmp_song_path); // Saves the name of the current song and moves on to the next index
 
+        // Realising all pointers
         free(tmp_song_file);
         free(tmp_song_path);
 
-        line_len = getline(&buffer, &buff_size, songs);
+        line_len = getline(&buffer, &buff_size, songs); // Get the next line
     }
 
     fclose(songs);
 
-    return i;
-
+    return i; // Returns the numbers of songs
 }

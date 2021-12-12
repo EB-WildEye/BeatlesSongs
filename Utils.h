@@ -1,4 +1,4 @@
-
+// Created by Ein-Bar Surie 316011683  &&  Noam Ickowicz 314766304
 #ifndef HW3_UTILS_H
 #define HW3_UTILS_H
 
@@ -8,13 +8,13 @@
 #include <stdbool.h>
 #define LINE_SIZE 256
 
-int length(char* str);
+int length(const char* str);
 // Returns the number of indexes at the array
 
 void check_file(FILE* fp, char* path);
 // End the program if the file isn't open
 
-void check_allocate(char* ap);
+void check_allocate(const char* ap);
 // End the program if the memory allocation failed
 
 int count_lines(FILE* f,char* path);
@@ -34,7 +34,7 @@ char* create_path(char* dir, char* file);
 char* get_song_name(char* path);
 // Creating string by allocation dynamic memory for the first line (title) at the file
 
-bool wc(char* path, int* nchars, int* nwords, int* nlines);
+bool wc(const char* path, int* nchars, int* nwords, int* nlines);
 // Return True if the file opened successfully, analyzing the file by counting the parameters. Return false if the func failed to read the file.
 
 int get_all_song_names(char* path, char*** all_song_names);
